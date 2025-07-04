@@ -1,0 +1,28 @@
+@page "/"
+@using System
+
+<h1 class="word">@currentWord</h1>
+
+<button class="next-button" @onclick="NextWord">Следующее слово</button>
+
+@code {
+    private List<string> words = new()
+    {
+        "Собака", "Кошка", "Машина", "Мяч", "Мама", "Папа", "Книга", "Дом", "Ложка", "Молоко"
+    };
+
+    private string currentWord;
+    private Random rnd = new();
+
+    protected override void OnInitialized()
+    {
+        NextWord();
+    }
+
+    private void NextWord()
+    {
+        int index = rnd.Next(words.Count);
+        currentWord = words[index];
+    }
+}
+

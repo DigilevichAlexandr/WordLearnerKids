@@ -1,0 +1,15 @@
+{
+  "name": "Учим слова",
+  "short_name": "Слова",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fef6e4",
+  "theme_color": "#f582ae",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
