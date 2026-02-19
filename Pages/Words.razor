@@ -1,24 +1,24 @@
 @page "/"
 
-<PageTitle>Учим слова</PageTitle>
+<PageTitle>РЈС‡РёРј СЃР»РѕРІР°</PageTitle>
 
 <h1 class="word">@currentWord</h1>
 
-<button class="next-button" @onclick="NextWord">Следующее слово</button>
+<button class="next-button" @onclick="NextWord">РЎР»РµРґСѓСЋС‰РµРµ СЃР»РѕРІРѕ</button>
 
 @code {
     private static readonly string[] vocabulary =
     [
-        "Собака",
-        "Кошка",
-        "Машина",
-        "Мяч",
-        "Мама",
-        "Папа",
-        "Книга",
-        "Дом",
-        "Ложка",
-        "Молоко"
+        "РЎРѕР±Р°РєР°",
+        "РљРѕС€РєР°",
+        "РњР°С€РёРЅР°",
+        "РњСЏС‡",
+        "РњР°РјР°",
+        "РџР°РїР°",
+        "РљРЅРёРіР°",
+        "Р”РѕРј",
+        "Р›РѕР¶РєР°",
+        "РњРѕР»РѕРєРѕ"
     ];
 
     private readonly Random random = new();
@@ -34,7 +34,7 @@
     {
         if (vocabulary.Length == 0)
         {
-            currentWord = "Нет слов";
+            currentWord = "РќРµС‚ СЃР»РѕРІ";
             return;
         }
 
