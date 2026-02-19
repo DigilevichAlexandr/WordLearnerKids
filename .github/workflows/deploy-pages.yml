@@ -1,0 +1,87 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Publish Blazor WebAssembly app
+        run: dotnet publish WordLearnerKids.csproj -c Release -o publish
+
+      - name: Adjust paths for GitHub Pages
+        run: |
+          if [ "${{ github.event.repository.name }}" = "${{ github.repository_owner }}.github.io" ]; then
+            BASE_PATH="/"
+          else
+            BASE_PATH="/${{ github.event.repository.name }}/"
+          fi
+          export BASE_PATH
+
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          publish_dir = Path("publish/wwwroot")
+          base_path = os.environ["BASE_PATH"]
+
+          index_path = publish_dir / "index.html"
+          html = index_path.read_text(encoding="utf-8")
+          html = html.replace('<base href="/" />', f'<base href="{base_path}" />')
+          index_path.write_text(html, encoding="utf-8")
+
+          manifest_path = publish_dir / "manifest.json"
+          if manifest_path.exists():
+              data = json.loads(manifest_path.read_text(encoding="utf-8"))
+              data["start_url"] = base_path
+              manifest_path.write_text(
+                  json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+                  encoding="utf-8",
+              )
+          PY
+
+      - name: Prepare static files for SPA routing
+        run: |
+          cp publish/wwwroot/index.html publish/wwwroot/404.html
+          touch publish/wwwroot/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
