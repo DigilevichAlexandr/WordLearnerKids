@@ -1,18 +1,29 @@
 @page "/"
-@using System
+
+<PageTitle>Учим слова</PageTitle>
 
 <h1 class="word">@currentWord</h1>
 
 <button class="next-button" @onclick="NextWord">Следующее слово</button>
 
 @code {
-    private List<string> words = new()
-    {
-        "Собака", "Кошка", "Машина", "Мяч", "Мама", "Папа", "Книга", "Дом", "Ложка", "Молоко"
-    };
+    private static readonly string[] vocabulary =
+    [
+        "Собака",
+        "Кошка",
+        "Машина",
+        "Мяч",
+        "Мама",
+        "Папа",
+        "Книга",
+        "Дом",
+        "Ложка",
+        "Молоко"
+    ];
 
-    private string currentWord;
-    private Random rnd = new();
+    private readonly Random random = new();
+    private int currentIndex = -1;
+    private string currentWord = string.Empty;
 
     protected override void OnInitialized()
     {
@@ -21,8 +32,20 @@
 
     private void NextWord()
     {
-        int index = rnd.Next(words.Count);
-        currentWord = words[index];
+        if (vocabulary.Length == 0)
+        {
+            currentWord = "Нет слов";
+            return;
+        }
+
+        var nextIndex = currentIndex;
+        while (vocabulary.Length > 1 && nextIndex == currentIndex)
+        {
+            nextIndex = random.Next(vocabulary.Length);
+        }
+
+        currentIndex = nextIndex;
+        currentWord = vocabulary[currentIndex];
     }
 }
 
