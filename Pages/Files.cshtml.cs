@@ -4,13 +4,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using WordLearnerKids.Configuration;
 using WordLearnerKids.Data;
 using WordLearnerKids.Models;
 
 namespace WordLearnerKids.Pages;
 
 [Authorize]
-public sealed class FilesModel(AppDbContext dbContext, IWebHostEnvironment environment) : PageModel
+public sealed class FilesModel(AppDbContext dbContext, IOptions<AppStorageOptions> storageOptions) : PageModel
 {
     private const long MaxFileSizeBytes = 25 * 1024 * 1024;
 
@@ -117,7 +119,7 @@ public sealed class FilesModel(AppDbContext dbContext, IWebHostEnvironment envir
         return RedirectToPage();
     }
 
-    private string StorageRoot => Path.Combine(environment.ContentRootPath, "Storage");
+    private string StorageRoot => storageOptions.Value.FilesPath;
 
     private async Task LoadFilesAsync()
     {

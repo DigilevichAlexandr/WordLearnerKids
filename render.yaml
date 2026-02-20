@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: wordlearnerkids
+    runtime: docker
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:10000
+      - key: AppDataRoot
+        value: /var/data
+    disk:
+      name: wordlearnerkids-data
+      mountPath: /var/data
+      sizeGB: 1
