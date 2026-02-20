@@ -1,0 +1,14 @@
+@page
+@model WordLearnerKids.Pages.ErrorModel
+@{
+    ViewData["Title"] = "Ошибка";
+}
+
+<section class="panel">
+    <h1>Ошибка</h1>
+    <p>Во время обработки запроса произошла ошибка.</p>
+    @if (Model.ShowRequestId)
+    {
+        <p class="muted">Request ID: <code>@Model.RequestId</code></p>
+    }
+</section>

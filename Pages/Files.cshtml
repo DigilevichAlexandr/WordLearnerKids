@@ -1,0 +1,54 @@
+@page
+@model WordLearnerKids.Pages.FilesModel
+@{
+    ViewData["Title"] = "Файлы";
+}
+
+<section class="panel">
+    <h1>Мои файлы</h1>
+    <p class="muted">Загрузка, скачивание и удаление файлов доступны только владельцу.</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <p class="success">@Model.StatusMessage</p>
+    }
+    <div asp-validation-summary="ModelOnly" class="error"></div>
+
+    <form method="post" asp-page-handler="Upload" enctype="multipart/form-data" class="grid">
+        <div>
+            <label for="upload-file">Файл (до 25 МБ)</label>
+            <input id="upload-file" type="file" name="upload" required />
+        </div>
+        <button type="submit">Загрузить</button>
+    </form>
+</section>
+
+<section class="file-list">
+    @if (Model.Files.Count == 0)
+    {
+        <article class="file-item">
+            <p class="muted">Файлы пока не загружены.</p>
+        </article>
+    }
+    else
+    {
+        @foreach (var file in Model.Files)
+        {
+            <article class="file-item">
+                <h3>@file.OriginalName</h3>
+                <p class="muted">
+                    Размер: @Math.Round(file.SizeBytes / 1024d, 1) КБ ·
+                    Загружен: @file.UploadedAtUtc.ToLocalTime().ToString("g")
+                </p>
+
+                <div class="inline">
+                    <a asp-page-handler="Download" asp-route-id="@file.Id" class="button secondary">Скачать</a>
+                    <form method="post" asp-page-handler="Delete">
+                        <input type="hidden" name="id" value="@file.Id" />
+                        <button type="submit" class="danger">Удалить</button>
+                    </form>
+                </div>
+            </article>
+        }
+    }
+</section>
