@@ -1,0 +1,67 @@
+@page
+@model WordLearnerKids.Pages.NotesModel
+@{
+    ViewData["Title"] = "Заметки";
+}
+
+<section class="panel">
+    <h1>Мои заметки</h1>
+    <p class="muted">Создавайте и редактируйте заметки. Доступ есть только у вас.</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <p class="success">@Model.StatusMessage</p>
+    }
+    <div asp-validation-summary="ModelOnly" class="error"></div>
+
+    <form method="post" asp-page-handler="Add" class="grid">
+        <div>
+            <label for="new-title">Заголовок</label>
+            <input id="new-title" name="title" maxlength="200" required />
+        </div>
+        <div>
+            <label for="new-content">Текст заметки</label>
+            <textarea id="new-content" name="content"></textarea>
+        </div>
+        <button type="submit">Сохранить заметку</button>
+    </form>
+</section>
+
+<section class="note-list">
+    @if (Model.Notes.Count == 0)
+    {
+        <article class="note-item">
+            <p class="muted">Пока нет заметок.</p>
+        </article>
+    }
+    else
+    {
+        @foreach (var note in Model.Notes)
+        {
+            <article class="note-item">
+                <form method="post" asp-page-handler="Update" class="grid">
+                    <input type="hidden" name="id" value="@note.Id" />
+
+                    <div>
+                        <label for="title-@note.Id">Заголовок</label>
+                        <input id="title-@note.Id" name="title" value="@note.Title" maxlength="200" required />
+                    </div>
+                    <div>
+                        <label for="content-@note.Id">Текст</label>
+                        <textarea id="content-@note.Id" name="content">@note.Content</textarea>
+                    </div>
+                    <div class="inline">
+                        <button type="submit">Обновить</button>
+                    </div>
+                </form>
+
+                <form method="post" asp-page-handler="Delete" class="inline">
+                    <input type="hidden" name="id" value="@note.Id" />
+                    <button type="submit" class="danger">Удалить</button>
+                </form>
+
+                <p class="muted">Обновлено: @note.UpdatedAtUtc.ToLocalTime().ToString("g")</p>
+            </article>
+        }
+    }
+</section>

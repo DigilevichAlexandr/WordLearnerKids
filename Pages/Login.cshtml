@@ -1,0 +1,36 @@
+@page
+@model WordLearnerKids.Pages.LoginModel
+@{
+    ViewData["Title"] = "Вход";
+}
+
+<section class="panel">
+    <h1>Вход</h1>
+
+    <div asp-validation-summary="ModelOnly" class="error"></div>
+
+    <form method="post" class="grid">
+        <input asp-for="ReturnUrl" type="hidden" />
+
+        <div>
+            <label asp-for="Input.Email"></label>
+            <input asp-for="Input.Email" autocomplete="email" />
+            <span asp-validation-for="Input.Email" class="error"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.Password"></label>
+            <input asp-for="Input.Password" type="password" autocomplete="current-password" />
+            <span asp-validation-for="Input.Password" class="error"></span>
+        </div>
+
+        <label class="inline">
+            <input asp-for="Input.RememberMe" type="checkbox" />
+            Запомнить меня
+        </label>
+
+        <button type="submit">Войти</button>
+    </form>
+
+    <p class="muted">Нет аккаунта? <a asp-page="/Register">Зарегистрироваться</a></p>
+</section>

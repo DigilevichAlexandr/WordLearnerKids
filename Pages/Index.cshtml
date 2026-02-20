@@ -1,0 +1,23 @@
+@page
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<section class="panel">
+    <h1>Заметки и файлы</h1>
+    <p>Простое приложение с регистрацией, авторизацией и персональным хранилищем.</p>
+    @if (User.Identity?.IsAuthenticated ?? false)
+    {
+        <div class="inline">
+            <a class="button" asp-page="/Notes">Открыть заметки</a>
+            <a class="button secondary" asp-page="/Files">Открыть файлы</a>
+        </div>
+    }
+    else
+    {
+        <div class="inline">
+            <a class="button" asp-page="/Register">Создать аккаунт</a>
+            <a class="button secondary" asp-page="/Login">Войти</a>
+        </div>
+    }
+</section>

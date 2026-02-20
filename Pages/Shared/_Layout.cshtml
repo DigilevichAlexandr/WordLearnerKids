@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Заметки и файлы</title>
+    <link rel="icon" type="image/svg+xml" href="~/icon.svg" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" asp-page="/Index">NoteVault</a>
+        <nav class="menu">
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <a asp-page="/Notes">Заметки</a>
+                <a asp-page="/Files">Файлы</a>
+                <form asp-page="/Logout" method="post">
+                    <button type="submit" class="link-button">Выйти</button>
+                </form>
+            }
+            else
+            {
+                <a asp-page="/Login">Вход</a>
+                <a asp-page="/Register">Регистрация</a>
+            }
+        </nav>
+    </header>
+
+    <main class="container">
+        @RenderBody()
+    </main>
+</body>
+</html>
