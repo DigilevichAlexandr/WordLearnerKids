@@ -47,14 +47,23 @@ jobs:
           publish_dir = Path("publish/wwwroot")
           base_path = os.environ["BASE_PATH"]
 
+          def read_text_fallback(path: Path) -> str:
+              raw = path.read_bytes()
+              for encoding in ("utf-8", "utf-8-sig", "cp1251", "latin-1"):
+                  try:
+                      return raw.decode(encoding)
+                  except UnicodeDecodeError:
+                      continue
+              raise RuntimeError(f"Unsupported text encoding: {path}")
+
           index_path = publish_dir / "index.html"
-          html = index_path.read_text(encoding="utf-8")
+          html = read_text_fallback(index_path)
           html = html.replace('<base href="/" />', f'<base href="{base_path}" />')
           index_path.write_text(html, encoding="utf-8")
 
           manifest_path = publish_dir / "manifest.json"
           if manifest_path.exists():
-              data = json.loads(manifest_path.read_text(encoding="utf-8"))
+              data = json.loads(read_text_fallback(manifest_path))
               data["start_url"] = base_path
               manifest_path.write_text(
                   json.dumps(data, ensure_ascii=False, indent=2) + "\n",
