@@ -1,7 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -16,16 +13,11 @@ public sealed class RegisterModel(
     PasswordService passwordService,
     CaptchaService captchaService) : PageModel
 {
-    private const int MinFormFillMilliseconds = 2500;
-
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
     [BindProperty]
     public string CaptchaToken { get; set; } = string.Empty;
-
-    [BindProperty]
-    public long FormRenderedAtUnixMs { get; set; }
 
     public string CaptchaQuestion { get; private set; } = string.Empty;
 
@@ -53,22 +45,6 @@ public sealed class RegisterModel(
             return Page();
         }
 
-        if (!string.IsNullOrWhiteSpace(Input.Website))
-        {
-            ModelState.AddModelError(string.Empty, "Проверка защиты не пройдена.");
-            GenerateChallenge();
-            return Page();
-        }
-
-        var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var elapsedMs = now - FormRenderedAtUnixMs;
-        if (elapsedMs < MinFormFillMilliseconds)
-        {
-            ModelState.AddModelError(string.Empty, "Форма заполнена слишком быстро. Повторите попытку.");
-            GenerateChallenge();
-            return Page();
-        }
-
         if (!captchaService.Validate(CaptchaToken, Input.CaptchaAnswer))
         {
             ModelState.AddModelError(nameof(Input.CaptchaAnswer), "Неверный ответ капчи.");
@@ -92,10 +68,19 @@ public sealed class RegisterModel(
         };
 
         dbContext.Users.Add(userAccount);
-        await dbContext.SaveChangesAsync();
-        await SignInUserAsync(userAccount);
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            ModelState.AddModelError(string.Empty, "Не удалось создать аккаунт. Попробуйте снова.");
+            GenerateChallenge();
+            return Page();
+        }
 
-        return RedirectToPage("/Notes");
+        TempData["StatusMessage"] = "Аккаунт создан. Теперь войдите.";
+        return RedirectToPage("/Login");
     }
 
     private void GenerateChallenge()
@@ -103,24 +88,6 @@ public sealed class RegisterModel(
         var challenge = captchaService.CreateChallenge();
         CaptchaToken = challenge.Token;
         CaptchaQuestion = challenge.Question;
-        FormRenderedAtUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-    }
-
-    private async Task SignInUserAsync(UserAccount user)
-    {
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Email)
-        };
-
-        var principal = new ClaimsPrincipal(
-            new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal,
-            new AuthenticationProperties { IsPersistent = false });
     }
 
     public sealed class InputModel
@@ -139,7 +106,5 @@ public sealed class RegisterModel(
 
         [Required(ErrorMessage = "Ответьте на капчу.")]
         public string CaptchaAnswer { get; set; } = string.Empty;
-
-        public string Website { get; set; } = string.Empty;
     }
 }

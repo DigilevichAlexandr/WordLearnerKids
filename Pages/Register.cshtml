@@ -12,12 +12,6 @@
 
     <form method="post" class="grid">
         <input asp-for="CaptchaToken" type="hidden" />
-        <input asp-for="FormRenderedAtUnixMs" type="hidden" />
-
-        <div class="hidden-field" aria-hidden="true">
-            <label asp-for="Input.Website"></label>
-            <input asp-for="Input.Website" tabindex="-1" autocomplete="off" />
-        </div>
 
         <div>
             <label asp-for="Input.Email"></label>

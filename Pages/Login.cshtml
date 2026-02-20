@@ -7,6 +7,11 @@
 <section class="panel">
     <h1>Вход</h1>
 
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <p class="success">@Model.StatusMessage</p>
+    }
+
     <div asp-validation-summary="ModelOnly" class="error"></div>
 
     <form method="post" class="grid">

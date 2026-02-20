@@ -12,6 +12,9 @@ namespace WordLearnerKids.Pages;
 
 public sealed class LoginModel(AppDbContext dbContext, PasswordService passwordService) : PageModel
 {
+    [TempData]
+    public string? StatusMessage { get; set; }
+
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
